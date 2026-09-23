@@ -3,9 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUSESS SMART ID — Real-Time Anomaly Monitoring</title>
+    <title>KUSESS SMART ID — Real-Time Monitoring System</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #0F172A; }
@@ -14,24 +15,24 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-    <!-- Header / Navigation Bar -->
+    <!-- Header Navigation Bar -->
     <header class="bg-slate-900 text-white shadow-md">
         <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-white">KUSESS SMART ID</h1>
-                <p class="text-xs text-blue-400 font-medium tracking-widest uppercase">Real-Time Anomaly Monitoring System</p>
+                <p class="text-xs text-blue-400 font-medium tracking-widest uppercase">Real-Time Monitoring System</p>
             </div>
-            <div class="flex items-center gap-2 bg-slate-800 px-4 py-2 rounded-lg text-sm border border-slate-700">
+            <div class="flex items-center gap-3 bg-slate-800 px-4 py-2 rounded-lg text-sm border border-slate-700">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-slate-300">Status Sistem: <strong class="text-white">Aktif (Live)</strong></span>
+                <span class="text-slate-300">Live Sync Google Sheets: <strong id="lastSync" class="text-white">Memuatkan...</strong></span>
             </div>
         </div>
         
         <!-- Navigation Tabs -->
         <div class="max-w-7xl mx-auto px-6 flex space-x-8 border-t border-slate-800 text-sm font-medium text-slate-400">
-            <button onclick="switchTab('page1')" id="tab-page1" class="tab-btn active py-3 hover:text-white transition">Page 1 — Executive Overview</button>
-            <button onclick="switchTab('page2')" id="tab-page2" class="tab-btn py-3 hover:text-white transition">Page 2 — Anomaly Monitoring</button>
-            <button onclick="switchTab('page3')" id="tab-page3" class="tab-btn py-3 hover:text-white transition">Page 3 — Transaction Monitor</button>
+            <button onclick="switchTab('page1')" id="tab-page1" class="tab-btn active py-3 hover:text-white transition">PAGE 1 — EXECUTIVE OVERVIEW</button>
+            <button onclick="switchTab('page2')" id="tab-page2" class="tab-btn py-3 hover:text-white transition">PAGE 2 — ANOMALY MONITORING</button>
+            <button onclick="switchTab('page3')" id="tab-page3" class="tab-btn py-3 hover:text-white transition">PAGE 3 — TRANSACTION MONITOR</button>
         </div>
     </header>
 
@@ -43,24 +44,24 @@
             <!-- KPI Cards Row -->
             <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jumlah Transaksi</span>
-                    <div class="text-3xl font-bold text-slate-900 mt-2">790</div>
-                    <span class="text-xs text-emerald-600 mt-2 flex items-center gap-1">↑ 12% dibanding kemarin</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TOTAL TRANSAKSI</span>
+                    <div id="kpiTransaksi" class="text-3xl font-bold text-slate-900 mt-2">-</div>
+                    <span class="text-xs text-slate-400 mt-2">24 Jam Terakhir</span>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Jumlah Pelajar</span>
-                    <div class="text-3xl font-bold text-slate-900 mt-2">120</div>
-                    <span class="text-xs text-slate-500 mt-2">Pengguna aktif terdeteksi</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">PELAJAR UNIK</span>
+                    <div id="kpiPelajar" class="text-3xl font-bold text-slate-900 mt-2">-</div>
+                    <span class="text-xs text-slate-400 mt-2">Pengguna Aktif</span>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Anomali</span>
-                    <div class="text-3xl font-bold text-red-600 mt-2">23</div>
-                    <span class="text-xs text-red-500 mt-2">Memerlukan perhatian</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">JUMLAH ANOMALI</span>
+                    <div id="kpiAnomali" class="text-3xl font-bold text-red-600 mt-2">-</div>
+                    <span class="text-xs text-red-500 mt-2">Perlu Perhatian</span>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Anomaly Rate</span>
-                    <div class="text-3xl font-bold text-blue-600 mt-2">2.91%</div>
-                    <span class="text-xs text-slate-500 mt-2">Batas aman &lt; 5.0%</span>
+                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ANOMALY RATE</span>
+                    <div id="kpiRate" class="text-3xl font-bold text-blue-600 mt-2">-</div>
+                    <span class="text-xs text-slate-400 mt-2">Kadar Keseluruhan</span>
                 </div>
             </div>
 
@@ -69,13 +70,13 @@
                 <span class="text-sm font-semibold text-slate-700">Tahap Anomali Terdeteksi:</span>
                 <div class="flex items-center gap-4">
                     <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-red-600"></span> HIGH: <span class="text-lg">21</span>
+                        <span class="w-3 h-3 rounded-full bg-red-600"></span> HIGH: <span id="sevHigh" class="text-lg">0</span>
                     </div>
                     <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-amber-500"></span> MEDIUM: <span class="text-lg">2</span>
+                        <span class="w-3 h-3 rounded-full bg-amber-500"></span> MEDIUM: <span id="sevMedium" class="text-lg">0</span>
                     </div>
                     <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span> LOW: <span class="text-lg">0</span>
+                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span> LOW: <span id="sevLow" class="text-lg">0</span>
                     </div>
                 </div>
             </div>
@@ -88,7 +89,7 @@
                 </div>
             </div>
 
-            <!-- Charts Grid: Location, Category, Access Status -->
+            <!-- Charts Grid -->
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                     <h3 class="text-sm font-bold text-slate-800 mb-4">Anomali Mengikut Lokasi</h3>
@@ -103,7 +104,7 @@
                     </div>
                 </div>
                 <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4">Status Akses (Success / Denied)</h3>
+                    <h3 class="text-sm font-bold text-slate-800 mb-4">Status Akses (Success vs Denied)</h3>
                     <div class="h-56">
                         <canvas id="accessStatusChart"></canvas>
                     </div>
@@ -113,63 +114,39 @@
 
         <!-- PAGE 2: ANOMALY MONITORING -->
         <div id="page2" class="tab-content hidden space-y-6">
-            <div class="flex justify-between items-center bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
                 <div>
                     <h2 class="text-lg font-bold text-slate-900">Panel Siasatan Anomali</h2>
-                    <p class="text-sm text-slate-500">Khusus untuk tindakan pegawai keselamatan dan pihak pengurusan sekolah.</p>
+                    <p class="text-sm text-slate-500">Rekod khas untuk siasatan pegawai keselamatan & pengurusan.</p>
                 </div>
-                <div class="flex gap-2">
-                    <select class="bg-slate-50 border border-slate-300 text-slate-700 text-sm rounded-lg px-3 py-2">
-                        <option>Semua Tahap Anomali</option>
-                        <option>HIGH</option>
-                        <option>MEDIUM</option>
-                        <option>LOW</option>
+                <!-- Dropdown Filter Aktif -->
+                <div class="flex items-center gap-2">
+                    <label for="filterSeverity" class="text-xs font-semibold text-slate-500 uppercase">Tapis Tahap:</label>
+                    <select id="filterSeverity" onchange="renderAnomalyTable()" class="bg-slate-50 border border-slate-300 text-slate-800 font-semibold text-sm rounded-lg px-3 py-2 cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none">
+                        <option value="ALL">Semua Tahap Anomali</option>
+                        <option value="HIGH">HIGH</option>
+                        <option value="MEDIUM">MEDIUM</option>
+                        <option value="LOW">LOW</option>
                     </select>
                 </div>
             </div>
 
-            <!-- Anomaly Table -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600">
                     <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-3">Tahap</th>
-                            <th class="px-6 py-3">Masa</th>
-                            <th class="px-6 py-3">Nama Pelajar</th>
-                            <th class="px-6 py-3">Lokasi</th>
-                            <th class="px-6 py-3">Reader ID</th>
-                            <th class="px-6 py-3">Kategori Anomali</th>
-                            <th class="px-6 py-3">Tindakan</th>
+                            <th class="px-5 py-3">Masa</th>
+                            <th class="px-5 py-3">Tahap</th>
+                            <th class="px-5 py-3">Nama Pelajar</th>
+                            <th class="px-5 py-3">Kelas</th>
+                            <th class="px-5 py-3">Lokasi</th>
+                            <th class="px-5 py-3">Reader ID</th>
+                            <th class="px-5 py-3">Kategori Anomali</th>
+                            <th class="px-5 py-3">Status</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-bold bg-red-100 text-red-700 rounded-full">HIGH</span></td>
-                            <td class="px-6 py-4 font-mono text-xs">08:14:22 AM</td>
-                            <td class="px-6 py-4 font-semibold text-slate-900">Ahmad Daniel Bin Rosli</td>
-                            <td class="px-6 py-4">Pintu Utama</td>
-                            <td class="px-6 py-4 font-mono text-xs">RDR-GATE-01</td>
-                            <td class="px-6 py-4 text-red-600 font-medium">Penggunaan Kad Berulang (Passback)</td>
-                            <td class="px-6 py-4"><button class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">Siasat</button></td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-bold bg-red-100 text-red-700 rounded-full">HIGH</span></td>
-                            <td class="px-6 py-4 font-mono text-xs">08:12:05 AM</td>
-                            <td class="px-6 py-4 font-semibold text-slate-900">Nur Aisyah Binti Zulkifli</td>
-                            <td class="px-6 py-4">Dewan Makan</td>
-                            <td class="px-6 py-4 font-mono text-xs">RDR-HALL-02</td>
-                            <td class="px-6 py-4 text-red-600 font-medium">Akses Diluar Waktu Benar</td>
-                            <td class="px-6 py-4"><button class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">Siasat</button></td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4"><span class="px-2.5 py-1 text-xs font-bold bg-amber-100 text-amber-700 rounded-full">MEDIUM</span></td>
-                            <td class="px-6 py-4 font-mono text-xs">07:55:40 AM</td>
-                            <td class="px-6 py-4 font-semibold text-slate-900">Muhammad Irfan Bin Azman</td>
-                            <td class="px-6 py-4">Asrama Lelaki A</td>
-                            <td class="px-6 py-4 font-mono text-xs">RDR-DORM-01</td>
-                            <td class="px-6 py-4 text-amber-600 font-medium">Percubaan Imbasan Berganda</td>
-                            <td class="px-6 py-4"><button class="bg-blue-600 text-white px-3 py-1 rounded text-xs hover:bg-blue-700">Siasat</button></td>
-                        </tr>
+                    <tbody id="tableAnomaly" class="divide-y divide-slate-100">
+                        <!-- Dynamic Rows -->
                     </tbody>
                 </table>
             </div>
@@ -179,42 +156,26 @@
         <div id="page3" class="tab-content hidden space-y-6">
             <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
                 <div>
-                    <h2 class="text-lg font-bold text-slate-900">Log Rekod Transaksi Terperinci</h2>
-                    <p class="text-sm text-slate-500">Semua aktiviti imbasan Smart ID dalam tempoh 24 jam.</p>
+                    <h2 class="text-lg font-bold text-slate-900">Rekod Transaksi Terperinci</h2>
+                    <p class="text-sm text-slate-500">Log lengkap imbasan Smart ID terbaharu (24 Jam Terkini).</p>
                 </div>
-                <input type="text" placeholder="Cari Pelajar / ID / Lokasi..." class="bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-2 w-full md:w-72">
+                <!-- Kotak Carian Live -->
+                <input type="text" id="searchTxn" onkeyup="renderTransactionTable()" placeholder="Cari Pelajar / ID / Lokasi..." class="bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-2 w-full md:w-80 focus:ring-2 focus:ring-blue-500 outline-none">
             </div>
 
-            <!-- Full Transaction Table -->
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
                 <table class="w-full text-left text-sm text-slate-600">
                     <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold border-b border-slate-200">
                         <tr>
-                            <th class="px-6 py-3">ID Transaksi</th>
-                            <th class="px-6 py-3">Masa</th>
-                            <th class="px-6 py-3">Pelajar</th>
-                            <th class="px-6 py-3">Lokasi / Reader</th>
-                            <th class="px-6 py-3">Status Akses</th>
-                            <th class="px-6 py-3">Catatan Anomali</th>
+                            <th class="px-5 py-3">Masa</th>
+                            <th class="px-5 py-3">Nama Pelajar</th>
+                            <th class="px-5 py-3">Lokasi / Reader</th>
+                            <th class="px-5 py-3">Status Akses</th>
+                            <th class="px-5 py-3">Catatan Anomali</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-mono text-xs">TXN-90211</td>
-                            <td class="px-6 py-4 font-mono text-xs">08:30:11 AM</td>
-                            <td class="px-6 py-4 font-semibold text-slate-900">Siti Sarah Binti Amir</td>
-                            <td class="px-6 py-4">Makmal Komputer (RDR-LAB-01)</td>
-                            <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold bg-emerald-100 text-emerald-700 rounded">SUCCESS</span></td>
-                            <td class="px-6 py-4 text-slate-400">Normal</td>
-                        </tr>
-                        <tr class="hover:bg-slate-50">
-                            <td class="px-6 py-4 font-mono text-xs">TXN-90210</td>
-                            <td class="px-6 py-4 font-mono text-xs">08:28:45 AM</td>
-                            <td class="px-6 py-4 font-semibold text-slate-900">Ahmad Daniel Bin Rosli</td>
-                            <td class="px-6 py-4">Pintu Utama (RDR-GATE-01)</td>
-                            <td class="px-6 py-4"><span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded">DENIED</span></td>
-                            <td class="px-6 py-4 text-red-600 font-semibold">HIGH — Passback</td>
-                        </tr>
+                    <tbody id="tableTransactions" class="divide-y divide-slate-100">
+                        <!-- Dynamic Rows -->
                     </tbody>
                 </table>
             </div>
@@ -222,8 +183,221 @@
 
     </main>
 
-    <!-- JavaScript Navigation & Charts -->
     <script>
+        const SHEET_ID = '17SoEHBEEsPZn5gi_GzKIKlzeVedyxB65-rKG_-LgSio';
+
+        let rawAnomalyData = [];
+        let rawTransactionData = [];
+        let chartLine, chartLoc, chartCat, chartAcc;
+
+        function getCsvUrl(sheetName) {
+            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
+        }
+
+        async function fetchSheetData(sheetName) {
+            try {
+                const response = await fetch(getCsvUrl(sheetName));
+                const csvText = await response.text();
+                return new Promise((resolve) => {
+                    Papa.parse(csvText, {
+                        header: true,
+                        skipEmptyLines: true,
+                        complete: (results) => resolve(results.data)
+                    });
+                });
+            } catch (err) {
+                console.error("Error fetching sheet:", sheetName, err);
+                return [];
+            }
+        }
+
+        async function loadLiveDashboard() {
+            const [kpiData, hourlyData, locData, catData, accData, anomalyData, dashData] = await Promise.all([
+                fetchSheetData('EXECUTIVE_KPI'),
+                fetchSheetData('HOURLY_24H'),
+                fetchSheetData('LOCATION_24H'),
+                fetchSheetData('CATEGORY_24H'),
+                fetchSheetData('ACCESS_24H'),
+                fetchSheetData('ANOMALY_24H'),
+                fetchSheetData('DASHBOARD_DATA')
+            ]);
+
+            rawAnomalyData = anomalyData;
+            rawTransactionData = dashData;
+
+            // 1. Update KPI Cards
+            if (kpiData.length > 0) {
+                const kpi = kpiData[0];
+                document.getElementById('kpiTransaksi').innerText = kpi['Total Transaksi'] || '0';
+                document.getElementById('kpiPelajar').innerText = kpi['Pelajar Unik'] || '0';
+                document.getElementById('kpiAnomali').innerText = kpi['Anomali'] || '0';
+                document.getElementById('kpiRate').innerText = kpi['Anomaly Rate'] || '0%';
+                document.getElementById('sevHigh').innerText = kpi['High'] || '0';
+                document.getElementById('sevMedium').innerText = kpi['Medium'] || '0';
+                document.getElementById('sevLow').innerText = kpi['Low'] || '0';
+            }
+
+            // 2. Line Chart: Aktiviti 24 Jam
+            const hourlyLabels = hourlyData.map(d => d['Label Jam'] || d['Jam']);
+            const hourlyValues = hourlyData.map(d => parseInt(d['Jumlah Transaksi'] || 0));
+            
+            if (chartLine) chartLine.destroy();
+            chartLine = new Chart(document.getElementById('scanActivityChart'), {
+                type: 'line',
+                data: {
+                    labels: hourlyLabels,
+                    datasets: [{
+                        label: 'Jumlah Imbasan',
+                        data: hourlyValues,
+                        borderColor: '#2563EB',
+                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+            });
+
+            // 3. Bar Chart: Lokasi
+            const locLabels = locData.map(d => d['Nama Lokasi']);
+            const locValues = locData.map(d => parseInt(d['Jumlah Anomali'] || 0));
+
+            if (chartLoc) chartLoc.destroy();
+            chartLoc = new Chart(document.getElementById('locationChart'), {
+                type: 'bar',
+                data: {
+                    labels: locLabels,
+                    datasets: [{ data: locValues, backgroundColor: '#1E293B', borderRadius: 5 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } } }
+            });
+
+            // 4. Bar Chart: Kategori
+            const catLabels = catData.map(d => d['Kategori Anomali']);
+            const catValues = catData.map(d => parseInt(d['Jumlah'] || 0));
+
+            if (chartCat) chartCat.destroy();
+            chartCat = new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: catLabels,
+                    datasets: [{ data: catValues, backgroundColor: '#2563EB', borderRadius: 5 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } } }
+            });
+
+            // 5. Donut Chart: Status Akses
+            const accLabels = accData.map(d => d['Status Akses']);
+            const accValues = accData.map(d => parseInt(d['Jumlah'] || 0));
+
+            if (chartAcc) chartAcc.destroy();
+            chartAcc = new Chart(document.getElementById('accessStatusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: accLabels,
+                    datasets: [{ data: accValues, backgroundColor: ['#10B981', '#DC2626'] }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            renderAnomalyTable();
+            renderTransactionTable();
+
+            const now = new Date();
+            document.getElementById('lastSync').innerText = now.toLocaleTimeString();
+        }
+
+        // Render Page 2 Table (With Severity Dropdown Filter)
+        function renderAnomalyTable() {
+            const selectedSev = document.getElementById('filterSeverity').value;
+            const tbodyAnom = document.getElementById('tableAnomaly');
+            tbodyAnom.innerHTML = '';
+
+            const filteredData = rawAnomalyData.filter(row => {
+                if (selectedSev === 'ALL') return true;
+                return (row['Tahap Anomali'] || '').toUpperCase() === selectedSev;
+            });
+
+            if (filteredData.length === 0) {
+                tbodyAnom.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 font-medium">Tiada rekod anomali ditemui untuk tahap "${selectedSev}".</td></tr>`;
+                return;
+            }
+
+            filteredData.forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50';
+                
+                let sevColor = 'bg-slate-100 text-slate-700';
+                if (row['Tahap Anomali'] === 'HIGH') sevColor = 'bg-red-100 text-red-700';
+                else if (row['Tahap Anomali'] === 'MEDIUM') sevColor = 'bg-amber-100 text-amber-700';
+                else if (row['Tahap Anomali'] === 'LOW') sevColor = 'bg-emerald-100 text-emerald-700';
+                
+                tr.innerHTML = `
+                    <td class="px-5 py-3 font-mono text-xs">${row['Timestamp'] || '-'}</td>
+                    <td class="px-5 py-3"><span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${sevColor}">${row['Tahap Anomali'] || 'NORMAL'}</span></td>
+                    <td class="px-5 py-3 font-semibold text-slate-900">${row['Nama Pelajar'] || '-'}</td>
+                    <td class="px-5 py-3">${row['Kelas Penuh'] || '-'}</td>
+                    <td class="px-5 py-3">${row['Nama Lokasi'] || '-'}</td>
+                    <td class="px-5 py-3 font-mono text-xs">${row['ID Peranti (Reader)'] || '-'}</td>
+                    <td class="px-5 py-3 text-red-600 font-medium">${row['Kategori Anomali'] || '-'}</td>
+                    <td class="px-5 py-3 font-semibold">${row['Status Akses'] || '-'}</td>
+                `;
+                tbodyAnom.appendChild(tr);
+            });
+        }
+
+        // Render Page 3 Table (With Combined Columns & Live Search)
+        function renderTransactionTable() {
+            const query = (document.getElementById('searchTxn').value || '').toLowerCase();
+            const tbodyTxn = document.getElementById('tableTransactions');
+            tbodyTxn.innerHTML = '';
+
+            const filteredTxn = rawTransactionData.filter(row => {
+                if (!query) return true;
+                const searchStr = `${row['Nama Pelajar']} ${row['ID Pelajar']} ${row['Nama Lokasi']} ${row['ID Peranti (Reader)']}`.toLowerCase();
+                return searchStr.includes(query);
+            });
+
+            if (filteredTxn.length === 0) {
+                tbodyTxn.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 font-medium">Tiada rekod transaksi dijumpai untuk "${query}".</td></tr>`;
+                return;
+            }
+
+            filteredTxn.slice(0, 30).forEach(row => {
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-50';
+                
+                const statusBadge = row['Status Akses'] === 'SUCCESS' 
+                    ? 'bg-emerald-100 text-emerald-700 font-bold' 
+                    : 'bg-red-100 text-red-700 font-bold';
+
+                let anomalyText = row['Kategori Anomali'] || 'Normal';
+                let anomalyColor = 'text-slate-400';
+                
+                if (row['Tahap Anomali'] === 'HIGH') {
+                    anomalyColor = 'text-red-600 font-bold';
+                    anomalyText = `HIGH — ${row['Kategori Anomali']}`;
+                } else if (row['Tahap Anomali'] === 'MEDIUM') {
+                    anomalyColor = 'text-amber-600 font-bold';
+                    anomalyText = `MEDIUM — ${row['Kategori Anomali']}`;
+                } else if (row['Tahap Anomali'] === 'LOW') {
+                    anomalyColor = 'text-emerald-600 font-bold';
+                    anomalyText = `LOW — ${row['Kategori Anomali']}`;
+                }
+
+                const readerId = row['ID Peranti (Reader)'] ? `(${row['ID Peranti (Reader)']})` : '';
+
+                tr.innerHTML = `
+                    <td class="px-5 py-3 font-mono text-xs">${row['Timestamp'] || '-'}</td>
+                    <td class="px-5 py-3 font-semibold text-slate-900">${row['Nama Pelajar'] || '-'}</td>
+                    <td class="px-5 py-3">${row['Nama Lokasi'] || '-'} <span class="text-xs text-slate-400 font-mono">${readerId}</span></td>
+                    <td class="px-5 py-3"><span class="px-2.5 py-1 text-xs rounded-md ${statusBadge}">${row['Status Akses']}</span></td>
+                    <td class="px-5 py-3 ${anomalyColor}">${anomalyText}</td>
+                `;
+                tbodyTxn.appendChild(tr);
+            });
+        }
+
         function switchTab(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
             document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -231,63 +405,8 @@
             document.getElementById('tab-' + tabId).classList.add('active');
         }
 
-        // 1. Scan Activity Line Chart
-        new Chart(document.getElementById('scanActivityChart'), {
-            type: 'line',
-            data: {
-                labels: ['00:00', '04:00', '07:00', '08:00', '12:00', '16:00', '20:00'],
-                datasets: [{
-                    label: 'Jumlah Imbasan',
-                    data: [12, 5, 180, 310, 140, 110, 33],
-                    borderColor: '#2563EB',
-                    backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                    fill: true,
-                    tension: 0.35,
-                    pointBackgroundColor: '#2563EB'
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-
-        // 2. Location Bar Chart
-        new Chart(document.getElementById('locationChart'), {
-            type: 'bar',
-            data: {
-                labels: ['Pintu Utama', 'Dewan Makan', 'Asrama A', 'Asrama B', 'Makmal'],
-                datasets: [{
-                    data: [11, 6, 3, 2, 1],
-                    backgroundColor: '#1E293B',
-                    borderRadius: 6
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-        });
-
-        // 3. Category Doughnut Chart
-        new Chart(document.getElementById('categoryChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Passback', 'Luar Waktu', 'Imbasan Berganda', 'Kad Tidak Sah'],
-                datasets: [{
-                    data: [12, 6, 3, 2],
-                    backgroundColor: ['#DC2626', '#EA580C', '#D97706', '#2563EB']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
-
-        // 4. Access Status Donut Chart
-        new Chart(document.getElementById('accessStatusChart'), {
-            type: 'doughnut',
-            data: {
-                labels: ['SUCCESS', 'DENIED'],
-                datasets: [{
-                    data: [767, 23],
-                    backgroundColor: ['#10B981', '#EF4444']
-                }]
-            },
-            options: { responsive: true, maintainAspectRatio: false }
-        });
+        loadLiveDashboard();
+        setInterval(loadLiveDashboard, 15000);
     </script>
 </body>
 </html>
