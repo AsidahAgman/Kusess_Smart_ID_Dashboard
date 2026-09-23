@@ -403,10 +403,14 @@
         </p>
 
         <div class="control-panel">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" id="anomalySearchInput" placeholder="Find Student/ Location/ Category…">
+          </div>
           <div class="filter-group">
-            <label for="anomalyFilter">Filter:</label>
+            <label for="anomalyFilter">Severity:</label>
             <select id="anomalyFilter">
-              <option value="all">All Anomalies</option>
+              <option value="all">All Severity</option>
               <option value="high">HIGH</option>
               <option value="medium">MEDIUM</option>
               <option value="low">LOW</option>
@@ -414,7 +418,7 @@
           </div>
         </div>
 
-        <table class="data-table">
+        <table class="data-table" id="anomalyTable">
           <thead>
             <tr>
               <th>Date and Time</th>
@@ -493,11 +497,19 @@
         <div class="control-panel">
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-            <input type="text" placeholder="Find Student/ Location/ Reader ID…">
+            <input type="text" id="accessSearchInput" placeholder="Find Student/ Location/ Reader ID…">
+          </div>
+          <div class="filter-group">
+            <label for="accessStatusFilter">Status:</label>
+            <select id="accessStatusFilter">
+              <option value="all">All Status</option>
+              <option value="SUCCESS">SUCCESS</option>
+              <option value="DENIED">DENIED</option>
+            </select>
           </div>
         </div>
 
-        <table class="data-table">
+        <table class="data-table" id="accessTable">
           <thead>
             <tr>
               <th>Date and Time</th>
@@ -551,7 +563,7 @@
   </div>
 
   <script>
-    // Fungsi Perkalian Tab Dashboard
+    // Fungsi Pertukaran Tab Dashboard
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -559,6 +571,58 @@
       document.getElementById(tabId).classList.add('active');
       btn.classList.add('active');
     }
+
+    // --- FUNGSI CARIAN & FILTER ACCESS MONITORING ---
+    function filterAccessTable() {
+      const searchQuery = document.getElementById('accessSearchInput').value.toLowerCase().trim();
+      const statusQuery = document.getElementById('accessStatusFilter').value.toUpperCase();
+      const rows = document.querySelectorAll('#accessTable tbody tr');
+
+      rows.forEach(row => {
+        const textContent = row.textContent.toLowerCase();
+        const badge = row.querySelector('.badge');
+        const badgeText = badge ? badge.textContent.trim().toUpperCase() : '';
+
+        const matchesSearch = textContent.includes(searchQuery);
+        const matchesStatus = (statusQuery === 'ALL' || badgeText === statusQuery);
+
+        if (matchesSearch && matchesStatus) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    document.getElementById('accessSearchInput').addEventListener('input', filterAccessTable);
+    document.getElementById('accessStatusFilter').addEventListener('change', filterAccessTable);
+
+
+    // --- FUNGSI CARIAN & FILTER ANOMALY MONITORING ---
+    function filterAnomalyTable() {
+      const searchQuery = document.getElementById('anomalySearchInput').value.toLowerCase().trim();
+      const severityQuery = document.getElementById('anomalyFilter').value.toUpperCase();
+      const rows = document.querySelectorAll('#anomalyTable tbody tr');
+
+      rows.forEach(row => {
+        const textContent = row.textContent.toLowerCase();
+        const badge = row.querySelector('.badge');
+        const badgeText = badge ? badge.textContent.trim().toUpperCase() : '';
+
+        const matchesSearch = textContent.includes(searchQuery);
+        const matchesSeverity = (severityQuery === 'ALL' || badgeText === severityQuery);
+
+        if (matchesSearch && matchesSeverity) {
+          row.style.display = '';
+        } else {
+          row.style.display = 'none';
+        }
+      });
+    }
+
+    document.getElementById('anomalySearchInput').addEventListener('input', filterAnomalyTable);
+    document.getElementById('anomalyFilter').addEventListener('change', filterAnomalyTable);
+
 
     // Konfigurasi Warna Chart.js
     const primaryTeal = '#009DB8';
