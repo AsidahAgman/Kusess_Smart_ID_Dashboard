@@ -249,6 +249,11 @@
     }
 
     /* Tabel Data */
+    .table-container {
+      overflow-x: auto;
+      max-height: 550px;
+    }
+
     .data-table {
       width: 100%;
       border-collapse: collapse;
@@ -261,6 +266,9 @@
       color: #FFFFFF;
       padding: 12px 16px;
       font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 2;
     }
 
     .data-table td {
@@ -322,17 +330,17 @@
         <div class="kpi-card">
           <div class="kpi-title">Total Students</div>
           <div class="kpi-value">119</div>
-          <div class="kpi-subtitle">(Active users)</div>
+          <div class="kpi-subtitle">(Active users scanned)</div>
         </div>
         <div class="kpi-card danger">
           <div class="kpi-title">Anomalies Detected</div>
-          <div class="kpi-value">6</div>
-          <div class="kpi-subtitle">(Requires attention)</div>
+          <div class="kpi-value">12</div>
+          <div class="kpi-subtitle">(Requires immediate attention)</div>
         </div>
         <div class="kpi-card warning">
           <div class="kpi-title">Anomaly Rate</div>
-          <div class="kpi-value">0.42%</div>
-          <div class="kpi-subtitle">(Anomaly rate vs the Total Access for the past 24 hours)</div>
+          <div class="kpi-value">0.84%</div>
+          <div class="kpi-subtitle">(Anomaly rate vs Total Access in past 24 hours)</div>
         </div>
       </div>
 
@@ -340,24 +348,24 @@
       <div class="card">
         <div class="card-header">
           <h3>Type of Anomalies Detected</h3>
-          <span class="note">Refer to subsequent tab (Anomaly Monitoring for detailed information)</span>
+          <span class="note">Refer to subsequent tab (Anomaly Monitoring) for detailed logs</span>
         </div>
         <div style="display: flex; gap: 15px; flex-wrap: wrap;">
           <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
             <div style="font-size: 12px; color: var(--text-muted);">Passback Abuse</div>
-            <div style="font-size: 20px; font-weight: 700; color: var(--status-danger);">2 Cases</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-danger);">4 Cases</div>
           </div>
           <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
             <div style="font-size: 12px; color: var(--text-muted);">Restricted Area Trespass</div>
-            <div style="font-size: 20px; font-weight: 700; color: var(--status-danger);">1 Case</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-danger);">3 Cases</div>
           </div>
           <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
-            <div style="font-size: 12px; color: var(--text-muted);">Unregistered Card</div>
-            <div style="font-size: 20px; font-weight: 700; color: var(--status-warning);">1 Case</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Night Time Access</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-warning);">2 Cases</div>
           </div>
           <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
-            <div style="font-size: 12px; color: var(--text-muted);">Expired Card</div>
-            <div style="font-size: 20px; font-weight: 700; color: var(--status-warning);">1 Case</div>
+            <div style="font-size: 12px; color: var(--text-muted);">Expired / Unregistered Card</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-warning);">3 Cases</div>
           </div>
         </div>
       </div>
@@ -399,17 +407,17 @@
           <h3>Anomaly Monitoring</h3>
         </div>
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
-          The following are the anomalies detected. These anomalies would require further assessment.
+          The following are the anomalies detected across KUSESS facilities. These require further inspection and follow-up.
         </p>
 
         <div class="control-panel">
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-            <input type="text" id="anomalySearchInput" oninput="filterAnomalyTable()" onkeyup="filterAnomalyTable()" placeholder="Find Student/ Location/ Category…">
+            <input type="text" id="anomalySearchInput" placeholder="Find Student/ Location/ Category…">
           </div>
           <div class="filter-group">
             <label for="anomalyFilter">Severity:</label>
-            <select id="anomalyFilter" onchange="filterAnomalyTable()">
+            <select id="anomalyFilter">
               <option value="ALL">All Anomalies</option>
               <option value="HIGH">HIGH</option>
               <option value="MEDIUM">MEDIUM</option>
@@ -418,68 +426,118 @@
           </div>
         </div>
 
-        <table class="data-table" id="anomalyTable">
-          <thead>
-            <tr>
-              <th>Date and Time</th>
-              <th>Student Name</th>
-              <th>Class</th>
-              <th>Location</th>
-              <th>Anomaly Category</th>
-              <th>Type of Anomaly Detected</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>2026-09-22 22:45:00</td>
-              <td>Puteri Nadhirah binti Rosli</td>
-              <td>Tingkatan 3 Intan</td>
-              <td>Bengkel RBT</td>
-              <td>Ceroboh Kawasan Larangan</td>
-              <td><span class="badge badge-high">HIGH</span></td>
-            </tr>
-            <tr>
-              <td>2026-09-21 23:15:10</td>
-              <td>Muhammad Haikal bin Ahmad</td>
-              <td>Tingkatan 5 Mutiara</td>
-              <td>Blok Asrama</td>
-              <td>Akses Malam Dilarang</td>
-              <td><span class="badge badge-high">HIGH</span></td>
-            </tr>
-            <tr>
-              <td>2026-09-21 07:10:15</td>
-              <td>Mohd Yusuf bin Abu</td>
-              <td>Tingkatan 2 Delima</td>
-              <td>Pintu Utama</td>
-              <td>Pengguna Kad Berulang (Passback)</td>
-              <td><span class="badge badge-high">HIGH</span></td>
-            </tr>
-            <tr>
-              <td>2026-09-23 10:30:15</td>
-              <td>Muhammad Zikri bin Mansor</td>
-              <td>Tingkatan 1 Nilam</td>
-              <td>Makmal Sains</td>
-              <td>Kad Tamat Tempoh</td>
-              <td><span class="badge badge-medium">MEDIUM</span></td>
-            </tr>
-            <tr>
-              <td>2026-09-22 08:15:33</td>
-              <td>Siti Zulaikha binti Abdullah</td>
-              <td>Tingkatan 4 Delima</td>
-              <td>Pusat Sumber</td>
-              <td>Kad Tidak Didaftarkan</td>
-              <td><span class="badge badge-medium">MEDIUM</span></td>
-            </tr>
-            <tr>
-              <td>2026-09-21 15:45:00</td>
-              <td>Puteri Sofea binti Yusof</td>
-              <td>Tingkatan 2 Delima</td>
-              <td>Makmal Komputer</td>
-              <td>Akses Luar Waktu Jadual</td>
-              <td><span class="badge badge-low">LOW</span></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table class="data-table" id="anomalyTable">
+            <thead>
+              <tr>
+                <th>Date and Time</th>
+                <th>Student Name</th>
+                <th>Class</th>
+                <th>Location</th>
+                <th>Anomaly Category</th>
+                <th>Severity Level</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026-09-23 22:45:00</td>
+                <td>Puteri Nadhirah binti Rosli</td>
+                <td>Tingkatan 3 Intan</td>
+                <td>Bengkel RBT</td>
+                <td>Ceroboh Kawasan Larangan</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 23:15:10</td>
+                <td>Muhammad Haikal bin Ahmad</td>
+                <td>Tingkatan 5 Mutiara</td>
+                <td>Blok Asrama Lelaki</td>
+                <td>Akses Malam Dilarang</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 07:10:15</td>
+                <td>Mohd Yusuf bin Abu</td>
+                <td>Tingkatan 2 Delima</td>
+                <td>Pintu Utama Gate A</td>
+                <td>Pengguna Kad Berulang (Passback)</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 14:22:05</td>
+                <td>Ahmad Danial bin Razak</td>
+                <td>Tingkatan 4 Mutiara</td>
+                <td>Pintu Utama Gate A</td>
+                <td>Pengguna Kad Berulang (Passback)</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 18:05:40</td>
+                <td>Siti Nurhaliza binti Ishak</td>
+                <td>Tingkatan 5 Intan</td>
+                <td>Dewan Makan</td>
+                <td>Pengguna Kad Berulang (Passback)</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 21:30:12</td>
+                <td>Nurul Izzah binti Anwar</td>
+                <td>Tingkatan 3 Delima</td>
+                <td>Bilik Server IT</td>
+                <td>Ceroboh Kawasan Larangan</td>
+                <td><span class="badge badge-high">HIGH</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 10:30:15</td>
+                <td>Muhammad Zikri bin Mansor</td>
+                <td>Tingkatan 1 Nilam</td>
+                <td>Makmal Sains 2</td>
+                <td>Kad Tamat Tempoh</td>
+                <td><span class="badge badge-medium">MEDIUM</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 08:15:33</td>
+                <td>Siti Zulaikha binti Abdullah</td>
+                <td>Tingkatan 4 Delima</td>
+                <td>Pusat Sumber</td>
+                <td>Kad Tidak Didaftarkan</td>
+                <td><span class="badge badge-medium">MEDIUM</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 11:45:00</td>
+                <td>Luqman Hakim bin Ridzuan</td>
+                <td>Tingkatan 2 Nilam</td>
+                <td>Kantin Sekolah</td>
+                <td>Kad Tidak Didaftarkan</td>
+                <td><span class="badge badge-medium">MEDIUM</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 13:10:00</td>
+                <td>Aiman Farhan bin Ismail</td>
+                <td>Tingkatan 1 Intan</td>
+                <td>Pusat Sumber</td>
+                <td>Kad Tamat Tempoh</td>
+                <td><span class="badge badge-medium">MEDIUM</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 15:45:00</td>
+                <td>Puteri Sofea binti Yusof</td>
+                <td>Tingkatan 2 Delima</td>
+                <td>Makmal Komputer 1</td>
+                <td>Akses Luar Waktu Jadual</td>
+                <td><span class="badge badge-low">LOW</span></td>
+              </tr>
+              <tr>
+                <td>2026-09-23 16:20:18</td>
+                <td>Amirul Ashraf bin Zahid</td>
+                <td>Tingkatan 3 Mutiara</td>
+                <td>Gimnasium KUSESS</td>
+                <td>Akses Luar Waktu Jadual</td>
+                <td><span class="badge badge-low">LOW</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
@@ -491,17 +549,17 @@
           <h3>Access Monitoring</h3>
         </div>
         <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
-          Detailed Access Record for the past 24 hours
+          Detailed Live Access Record log for all smart card readers in KUSESS.
         </p>
 
         <div class="control-panel">
           <div class="search-box">
             <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
-            <input type="text" id="accessSearchInput" oninput="filterAccessTable()" onkeyup="filterAccessTable()" placeholder="Find Student/ Location/ Reader ID…">
+            <input type="text" id="accessSearchInput" placeholder="Find Student/ Location/ Reader ID…">
           </div>
           <div class="filter-group">
             <label for="accessStatusFilter">Status:</label>
-            <select id="accessStatusFilter" onchange="filterAccessTable()">
+            <select id="accessStatusFilter">
               <option value="ALL">All Status</option>
               <option value="SUCCESS">SUCCESS</option>
               <option value="DENIED">DENIED</option>
@@ -509,61 +567,154 @@
           </div>
         </div>
 
-        <table class="data-table" id="accessTable">
-          <thead>
-            <tr>
-              <th>Date and Time</th>
-              <th>Student Name</th>
-              <th>Location/ Reader ID</th>
-              <th>Access Status</th>
-              <th>Anomaly Category (if any)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>2026-09-23 17:15:00</td>
-              <td>Mohd Firdaus bin Hamid</td>
-              <td>Pintu Utama (RDR-GATE-01)</td>
-              <td><span class="badge badge-success">SUCCESS</span></td>
-              <td>Normal</td>
-            </tr>
-            <tr>
-              <td>2026-09-23 16:40:10</td>
-              <td>Muhammad Haikal bin Ahmad</td>
-              <td>Pintu Utama (RDR-GATE-02)</td>
-              <td><span class="badge badge-success">SUCCESS</span></td>
-              <td>Normal</td>
-            </tr>
-            <tr>
-              <td>2026-09-23 15:30:11</td>
-              <td>Nur Ariana binti Zulkifli</td>
-              <td>Makmal Komputer (RDR-LAB-01)</td>
-              <td><span class="badge badge-success">SUCCESS</span></td>
-              <td>Normal</td>
-            </tr>
-            <tr>
-              <td>2026-09-23 10:30:15</td>
-              <td>Muhammad Zikri bin Mansor</td>
-              <td>Makmal Sains (RDR-SCI-01)</td>
-              <td><span class="badge badge-danger">DENIED</span></td>
-              <td>Kad Tamat Tempoh</td>
-            </tr>
-            <tr>
-              <td>2026-09-23 08:45:20</td>
-              <td>Nur Iman binti Hashim</td>
-              <td>Pusat Sumber (RDR-LIB-01)</td>
-              <td><span class="badge badge-success">SUCCESS</span></td>
-              <td>Normal</td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-container">
+          <table class="data-table" id="accessTable">
+            <thead>
+              <tr>
+                <th>Date and Time</th>
+                <th>Student Name</th>
+                <th>Location / Reader ID</th>
+                <th>Access Status</th>
+                <th>Anomaly Category (if any)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>2026-09-23 23:15:10</td>
+                <td>Muhammad Haikal bin Ahmad</td>
+                <td>Blok Asrama Lelaki (RDR-ASM-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Akses Malam Dilarang</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 22:45:00</td>
+                <td>Puteri Nadhirah binti Rosli</td>
+                <td>Bengkel RBT (RDR-RBT-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Ceroboh Kawasan Larangan</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 21:30:12</td>
+                <td>Nurul Izzah binti Anwar</td>
+                <td>Bilik Server IT (RDR-IT-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Ceroboh Kawasan Larangan</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 20:10:00</td>
+                <td>Khairul Amri bin Nizam</td>
+                <td>Dewan Makan (RDR-DM-02)</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>Normal</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 18:05:40</td>
+                <td>Siti Nurhaliza binti Ishak</td>
+                <td>Dewan Makan (RDR-DM-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Pengguna Kad Berulang (Passback)</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 17:15:00</td>
+                <td>Mohd Firdaus bin Hamid</td>
+                <td>Pintu Utama (RDR-GATE-01)</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>Normal</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 16:40:10</td>
+                <td>Muhammad Haikal bin Ahmad</td>
+                <td>Pintu Utama (RDR-GATE-02)</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>Normal</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 16:20:18</td>
+                <td>Amirul Ashraf bin Zahid</td>
+                <td>Gimnasium KUSESS (RDR-GYM-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Akses Luar Waktu Jadual</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 15:45:00</td>
+                <td>Puteri Sofea binti Yusof</td>
+                <td>Makmal Komputer 1 (RDR-LAB-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Akses Luar Waktu Jadual</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 15:30:11</td>
+                <td>Nur Ariana binti Zulkifli</td>
+                <td>Makmal Komputer 1 (RDR-LAB-01)</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>Normal</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 14:22:05</td>
+                <td>Ahmad Danial bin Razak</td>
+                <td>Pintu Utama (RDR-GATE-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Pengguna Kad Berulang (Passback)</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 13:10:00</td>
+                <td>Aiman Farhan bin Ismail</td>
+                <td>Pusat Sumber (RDR-LIB-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Kad Tamat Tempoh</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 11:45:00</td>
+                <td>Luqman Hakim bin Ridzuan</td>
+                <td>Kantin Sekolah (RDR-KTN-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Kad Tidak Didaftarkan</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 10:30:15</td>
+                <td>Muhammad Zikri bin Mansor</td>
+                <td>Makmal Sains 2 (RDR-SCI-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Kad Tamat Tempoh</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 08:45:20</td>
+                <td>Nur Iman binti Hashim</td>
+                <td>Pusat Sumber (RDR-LIB-01)</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>Normal</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 08:15:33</td>
+                <td>Siti Zulaikha binti Abdullah</td>
+                <td>Pusat Sumber (RDR-LIB-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Kad Tidak Didaftarkan</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 07:10:15</td>
+                <td>Mohd Yusuf bin Abu</td>
+                <td>Pintu Utama (RDR-GATE-01)</td>
+                <td><span class="badge badge-danger">DENIED</span></td>
+                <td>Pengguna Kad Berulang (Passback)</td>
+              </tr>
+              <tr>
+                <td>2026-09-23 06:50:00</td>
+                <td>Harith Imran bin Fauzi</td>
+                <td>Pintu Utama (RDR-GATE-02)</td>
+                <td><span class="badge badge-success">SUCCESS</span></td>
+                <td>Normal</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
 
   </div>
 
   <script>
-    // 1. FUNGSI PERTUKARAN TAB
+    // 1. FUNGSI PERTUKARAN TAB DASHBOARD
     function switchTab(tabId, btn) {
       document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
       document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
@@ -572,7 +723,7 @@
       btn.classList.add('active');
     }
 
-    // 2. FUNGSI CARIAN & FILTER ACCESS MONITORING (KALIS-RALAT)
+    // 2. FUNGSI CARIAN & FILTER ACCESS MONITORING
     function filterAccessTable() {
       var searchInput = document.getElementById('accessSearchInput');
       var filterSelect = document.getElementById('accessStatusFilter');
@@ -589,22 +740,18 @@
         var row = rows[i];
         var rowText = row.innerText.toLowerCase();
 
-        // Status terletak pada Kolom ke-4 (Index 3)
+        // Status (Col index 3)
         var statusCell = row.cells[3];
         var statusText = statusCell ? statusCell.innerText.toUpperCase().trim() : '';
 
         var matchesSearch = (searchVal === '' || rowText.indexOf(searchVal) > -1);
         var matchesStatus = (filterVal === 'ALL' || statusText.indexOf(filterVal) > -1);
 
-        if (matchesSearch && matchesStatus) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
+        row.style.display = (matchesSearch && matchesStatus) ? '' : 'none';
       }
     }
 
-    // 3. FUNGSI CARIAN & FILTER ANOMALY MONITORING (KALIS-RALAT)
+    // 3. FUNGSI CARIAN & FILTER ANOMALY MONITORING
     function filterAnomalyTable() {
       var searchInput = document.getElementById('anomalySearchInput');
       var filterSelect = document.getElementById('anomalyFilter');
@@ -621,34 +768,40 @@
         var row = rows[i];
         var rowText = row.innerText.toLowerCase();
 
-        // Severity terletak pada Kolom ke-6 (Index 5)
+        // Severity (Col index 5)
         var severityCell = row.cells[5];
         var severityText = severityCell ? severityCell.innerText.toUpperCase().trim() : '';
 
         var matchesSearch = (searchVal === '' || rowText.indexOf(searchVal) > -1);
         var matchesSeverity = (filterVal === 'ALL' || severityText.indexOf(filterVal) > -1);
 
-        if (matchesSearch && matchesSeverity) {
-          row.style.display = '';
-        } else {
-          row.style.display = 'none';
-        }
+        row.style.display = (matchesSearch && matchesSeverity) ? '' : 'none';
       }
     }
 
-    // 4. PENYEDIAAN ELEMEN SEBAIK DOM SAHAJA DIKETATKAN
+    // 4. PASANG EVENT LISTENERS SEBAIK DOM SEDIA
     document.addEventListener('DOMContentLoaded', function() {
       var accessInput = document.getElementById('accessSearchInput');
       var accessSelect = document.getElementById('accessStatusFilter');
-      if (accessInput) accessInput.addEventListener('input', filterAccessTable);
-      if (accessSelect) accessSelect.addEventListener('change', filterAccessTable);
+      if (accessInput) {
+        accessInput.addEventListener('input', filterAccessTable);
+        accessInput.addEventListener('keyup', filterAccessTable);
+      }
+      if (accessSelect) {
+        accessSelect.addEventListener('change', filterAccessTable);
+      }
 
       var anomalyInput = document.getElementById('anomalySearchInput');
       var anomalySelect = document.getElementById('anomalyFilter');
-      if (anomalyInput) anomalyInput.addEventListener('input', filterAnomalyTable);
-      if (anomalySelect) anomalySelect.addEventListener('change', filterAnomalyTable);
+      if (anomalyInput) {
+        anomalyInput.addEventListener('input', filterAnomalyTable);
+        anomalyInput.addEventListener('keyup', filterAnomalyTable);
+      }
+      if (anomalySelect) {
+        anomalySelect.addEventListener('change', filterAnomalyTable);
+      }
 
-      // Inisialisasi Grafik Chart.js
+      // Inisialisasi Chart.js dengan Data Set KUSESS
       try {
         const primaryTeal = '#009DB8';
         const primaryAccent = '#008CB4';
@@ -656,60 +809,65 @@
         const statusSuccess = '#34C759';
         const statusWarning = '#FF9500';
 
+        // 1. Access Events 24 Hours Line Chart
         new Chart(document.getElementById('accessEventsChart'), {
           type: 'line',
           data: {
             labels: ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
             datasets: [{
               label: 'Total Scans',
-              data: [120, 310, 180, 240, 190, 210, 110, 45, 23],
+              data: [145, 320, 210, 280, 195, 225, 130, 85, 38],
               borderColor: primaryAccent,
               backgroundColor: 'rgba(0, 140, 180, 0.12)',
               fill: true,
-              tension: 0.3
+              tension: 0.35
             }]
           },
           options: { responsive: true, plugins: { legend: { display: false } } }
         });
 
+        // 2. Access Status Doughnut Chart (SUCCESS vs DENIED)
         new Chart(document.getElementById('accessStatusChart'), {
           type: 'doughnut',
           data: {
             labels: ['SUCCESS', 'DENIED'],
             datasets: [{
-              data: [1422, 6],
+              data: [1416, 12],
               backgroundColor: [statusSuccess, statusDanger]
             }]
           },
           options: { responsive: true }
         });
 
+        // 3. Anomaly Location Bar Chart
         new Chart(document.getElementById('anomalyLocationChart'), {
           type: 'bar',
           data: {
-            labels: ['Pintu Utama', 'Bengkel RBT', 'Blok Asrama', 'Makmal Sains', 'Pusat Sumber'],
+            labels: ['Pintu Utama', 'Dewan Makan', 'Pusat Sumber', 'Bengkel RBT', 'Makmal Sains', 'Blok Asrama'],
             datasets: [{
               label: 'Anomalies',
-              data: [2, 1, 1, 1, 1],
+              data: [3, 2, 2, 2, 2, 1],
               backgroundColor: primaryTeal
             }]
           },
           options: { responsive: true, plugins: { legend: { display: false } } }
         });
 
+        // 4. Anomaly Category Pie Chart
         new Chart(document.getElementById('anomalyCategoryChart'), {
           type: 'pie',
           data: {
-            labels: ['Passback Abuse', 'Restricted Area', 'Night Access', 'Expired Card', 'Unregistered'],
+            labels: ['Passback Abuse', 'Restricted Area', 'Expired/Unregistered', 'Night Time Access', 'Out of Schedule'],
             datasets: [{
-              data: [2, 1, 1, 1, 1],
+              data: [4, 3, 3, 2, 2],
               backgroundColor: [statusDanger, '#E63946', '#F4A261', statusWarning, primaryAccent]
             }]
           },
           options: { responsive: true }
         });
+
       } catch (err) {
-        console.log("Chart initialization error bypassed:", err);
+        console.log("Chart loading issue bypassed:", err);
       }
     });
   </script>
