@@ -1,412 +1,628 @@
 <!DOCTYPE html>
-<html lang="ms">
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KUSESS SMART ID — Real-Time Monitoring System</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; color: #0F172A; }
-        .tab-btn.active { border-bottom: 3px solid #2563EB; color: #2563EB; font-weight: 600; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KUSESS Smart ID - Smart Access Dashboard</title>
+
+  <!-- External Libraries: Chart.js & FontAwesome -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+  <style>
+    :root {
+      /* Palette Warna Poster KUSESS Smart ID */
+      --bg-dashboard: #F2F8FA;
+      --bg-card: #FFFFFF;
+      --bg-subcard: #E2F1F5;
+      
+      --primary-header: #0B3C48;
+      --primary-accent: #008CB4;
+      --primary-teal: #009DB8;
+      
+      --text-main: #062831;
+      --text-muted: #4A6D76;
+      --border-color: #CBE3E9;
+      
+      /* Status Colors */
+      --status-success: #34C759;
+      --status-warning: #FF9500;
+      --status-danger: #FD282A;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    body {
+      background-color: var(--bg-dashboard);
+      color: var(--text-main);
+      padding-bottom: 40px;
+    }
+
+    /* Top Navigation / Header */
+    .header-nav {
+      background-color: var(--primary-header);
+      color: #FFFFFF;
+      padding: 16px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px rgba(11, 60, 72, 0.15);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .header-title i {
+      color: var(--primary-teal);
+      font-size: 26px;
+    }
+
+    /* Navigasi Tab */
+    .tab-container {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .tab-btn {
+      background-color: rgba(255, 255, 255, 0.12);
+      color: #D1E5EA;
+      border: none;
+      padding: 10px 22px;
+      border-radius: 6px 6px 0 0;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.2s ease;
+    }
+
+    .tab-btn:hover {
+      background-color: rgba(255, 255, 255, 0.25);
+      color: #FFFFFF;
+    }
+
+    .tab-btn.active {
+      background-color: var(--bg-dashboard);
+      color: var(--primary-header);
+      font-weight: 700;
+    }
+
+    /* Container Utama */
+    .container {
+      max-width: 1350px;
+      margin: 25px auto;
+      padding: 0 20px;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    /* Grid Kartu KPI */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(11, 60, 72, 0.05);
+      position: relative;
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 6px;
+      height: 100%;
+      border-radius: 10px 0 0 10px;
+      background-color: var(--primary-accent);
+    }
+
+    .kpi-card.danger::before { background-color: var(--status-danger); }
+    .kpi-card.warning::before { background-color: var(--status-warning); }
+
+    .kpi-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .kpi-value {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text-main);
+      margin: 8px 0 4px 0;
+    }
+
+    .kpi-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-style: italic;
+    }
+
+    /* Panel Card */
+    .card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 2px 8px rgba(11, 60, 72, 0.05);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 12px;
+      margin-bottom: 18px;
+      border-bottom: 2px solid var(--bg-subcard);
+    }
+
+    .card-header h3 {
+      font-size: 17px;
+      color: var(--primary-header);
+      font-weight: 700;
+    }
+
+    .card-header .note {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* Grid Layout Grafik */
+    .charts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+      gap: 20px;
+    }
+
+    /* Filter & Search Controls */
+    .control-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 18px;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background-color: var(--bg-subcard);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 8px 14px;
+      width: 320px;
+    }
+
+    .search-box input {
+      border: none;
+      background: transparent;
+      outline: none;
+      margin-left: 8px;
+      width: 100%;
+      color: var(--text-main);
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .filter-group select {
+      padding: 8px 12px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background-color: var(--bg-card);
+      color: var(--text-main);
+      outline: none;
+      cursor: pointer;
+    }
+
+    /* Tabel Data */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 14px;
+    }
+
+    .data-table th {
+      background-color: var(--primary-header);
+      color: #FFFFFF;
+      padding: 12px 16px;
+      font-weight: 600;
+    }
+
+    .data-table td {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .data-table tr:hover {
+      background-color: var(--bg-subcard);
+    }
+
+    /* Lencana Status / Badge */
+    .badge {
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      display: inline-block;
+    }
+
+    .badge-success { background-color: #E8F8EC; color: #1B7A32; }
+    .badge-danger { background-color: #FDE8E8; color: #C01E1E; }
+    .badge-high { background-color: var(--status-danger); color: #FFFFFF; }
+    .badge-medium { background-color: #FFEAD0; color: #B76200; }
+    .badge-low { background-color: var(--bg-subcard); color: var(--primary-header); }
+  </style>
 </head>
-<body class="min-h-screen flex flex-col">
+<body>
 
-    <!-- Header Navigation Bar -->
-    <header class="bg-slate-900 text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-white">KUSESS SMART ID</h1>
-                <p class="text-xs text-blue-400 font-medium tracking-widest uppercase">Real-Time Monitoring System</p>
-            </div>
-            <div class="flex items-center gap-3 bg-slate-800 px-4 py-2 rounded-lg text-sm border border-slate-700">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span class="text-slate-300">Live Sync Google Sheets: <strong id="lastSync" class="text-white">Memuatkan...</strong></span>
-            </div>
+  <!-- Header Navigation Utama -->
+  <div class="header-nav">
+    <div>
+      <div class="header-title">
+        <i class="fa-solid fa-id-card"></i> KUSESS Smart ID
+      </div>
+      <div class="tab-container">
+        <button class="tab-btn active" onclick="switchTab('main-dashboard', this)">Main Dashboard</button>
+        <button class="tab-btn" onclick="switchTab('anomaly-monitoring', this)">Anomaly Monitoring</button>
+        <button class="tab-btn" onclick="switchTab('access-monitoring', this)">Access Monitoring</button>
+      </div>
+    </div>
+    <div style="font-size: 13px; color: #D1E5EA;">
+      <i class="fa-solid fa-circle" style="color: var(--status-success); font-size: 10px;"></i> System Live Sync
+    </div>
+  </div>
+
+  <div class="container">
+
+    <!-- TAB 1: MAIN DASHBOARD -->
+    <div id="main-dashboard" class="tab-content active">
+      
+      <!-- Kartu Ringkasan KPI -->
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-title">Total Access Events</div>
+          <div class="kpi-value">1,428</div>
+          <div class="kpi-subtitle">(for the past 24 hours)</div>
         </div>
-        
-        <!-- Navigation Tabs -->
-        <div class="max-w-7xl mx-auto px-6 flex space-x-8 border-t border-slate-800 text-sm font-medium text-slate-400">
-            <button onclick="switchTab('page1')" id="tab-page1" class="tab-btn active py-3 hover:text-white transition">PAGE 1 — EXECUTIVE OVERVIEW</button>
-            <button onclick="switchTab('page2')" id="tab-page2" class="tab-btn py-3 hover:text-white transition">PAGE 2 — ANOMALY MONITORING</button>
-            <button onclick="switchTab('page3')" id="tab-page3" class="tab-btn py-3 hover:text-white transition">PAGE 3 — TRANSACTION MONITOR</button>
+        <div class="kpi-card">
+          <div class="kpi-title">Total Students</div>
+          <div class="kpi-value">119</div>
+          <div class="kpi-subtitle">(Active users)</div>
         </div>
-    </header>
-
-    <main class="max-w-7xl mx-auto px-6 py-8 flex-1 w-full">
-
-        <!-- PAGE 1: EXECUTIVE OVERVIEW -->
-        <div id="page1" class="tab-content space-y-6">
-            
-            <!-- KPI Cards Row -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">TOTAL TRANSAKSI</span>
-                    <div id="kpiTransaksi" class="text-3xl font-bold text-slate-900 mt-2">-</div>
-                    <span class="text-xs text-slate-400 mt-2">24 Jam Terakhir</span>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">PELAJAR UNIK</span>
-                    <div id="kpiPelajar" class="text-3xl font-bold text-slate-900 mt-2">-</div>
-                    <span class="text-xs text-slate-400 mt-2">Pengguna Aktif</span>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">JUMLAH ANOMALI</span>
-                    <div id="kpiAnomali" class="text-3xl font-bold text-red-600 mt-2">-</div>
-                    <span class="text-xs text-red-500 mt-2">Perlu Perhatian</span>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col justify-between">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">ANOMALY RATE</span>
-                    <div id="kpiRate" class="text-3xl font-bold text-blue-600 mt-2">-</div>
-                    <span class="text-xs text-slate-400 mt-2">Kadar Keseluruhan</span>
-                </div>
-            </div>
-
-            <!-- Anomaly Severity Badges -->
-            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-wrap items-center justify-between gap-4">
-                <span class="text-sm font-semibold text-slate-700">Tahap Anomali Terdeteksi:</span>
-                <div class="flex items-center gap-4">
-                    <div class="bg-red-50 border border-red-200 text-red-700 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-red-600"></span> HIGH: <span id="sevHigh" class="text-lg">0</span>
-                    </div>
-                    <div class="bg-amber-50 border border-amber-200 text-amber-700 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-amber-500"></span> MEDIUM: <span id="sevMedium" class="text-lg">0</span>
-                    </div>
-                    <div class="bg-emerald-50 border border-emerald-200 text-emerald-700 px-4 py-2 rounded-lg font-semibold text-sm flex items-center gap-2">
-                        <span class="w-3 h-3 rounded-full bg-emerald-500"></span> LOW: <span id="sevLow" class="text-lg">0</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Line Chart: 24h Activity -->
-            <div class="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
-                <h2 class="text-base font-bold text-slate-800 mb-4">Aktiviti Imbasan 24 Jam</h2>
-                <div class="h-64">
-                    <canvas id="scanActivityChart"></canvas>
-                </div>
-            </div>
-
-            <!-- Charts Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4">Anomali Mengikut Lokasi</h3>
-                    <div class="h-56">
-                        <canvas id="locationChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4">Anomali Mengikut Kategori</h3>
-                    <div class="h-56">
-                        <canvas id="categoryChart"></canvas>
-                    </div>
-                </div>
-                <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                    <h3 class="text-sm font-bold text-slate-800 mb-4">Status Akses (Success vs Denied)</h3>
-                    <div class="h-56">
-                        <canvas id="accessStatusChart"></canvas>
-                    </div>
-                </div>
-            </div>
+        <div class="kpi-card danger">
+          <div class="kpi-title">Anomalies Detected</div>
+          <div class="kpi-value">6</div>
+          <div class="kpi-subtitle">(Requires attention)</div>
         </div>
+        <div class="kpi-card warning">
+          <div class="kpi-title">Anomaly Rate</div>
+          <div class="kpi-value">0.42%</div>
+          <div class="kpi-subtitle">(Anomaly rate vs the Total Access for the past 24 hours)</div>
+        </div>
+      </div>
 
-        <!-- PAGE 2: ANOMALY MONITORING -->
-        <div id="page2" class="tab-content hidden space-y-6">
-            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-white p-5 rounded-xl border border-slate-200 shadow-sm">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">Panel Siasatan Anomali</h2>
-                    <p class="text-sm text-slate-500">Rekod khas untuk siasatan pegawai keselamatan & pengurusan.</p>
-                </div>
-                <!-- Dropdown Filter Aktif -->
-                <div class="flex items-center gap-2">
-                    <label for="filterSeverity" class="text-xs font-semibold text-slate-500 uppercase">Tapis Tahap:</label>
-                    <select id="filterSeverity" onchange="renderAnomalyTable()" class="bg-slate-50 border border-slate-300 text-slate-800 font-semibold text-sm rounded-lg px-3 py-2 cursor-pointer focus:ring-2 focus:ring-blue-500 outline-none">
-                        <option value="ALL">Semua Tahap Anomali</option>
-                        <option value="HIGH">HIGH</option>
-                        <option value="MEDIUM">MEDIUM</option>
-                        <option value="LOW">LOW</option>
-                    </select>
-                </div>
-            </div>
+      <!-- Ringkasan Jenis Anomali -->
+      <div class="card">
+        <div class="card-header">
+          <h3>Type of Anomalies Detected</h3>
+          <span class="note">Refer to subsequent tab (Anomaly Monitoring for detailed information)</span>
+        </div>
+        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+          <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
+            <div style="font-size: 12px; color: var(--text-muted);">Passback Abuse</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-danger);">2 Cases</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
+            <div style="font-size: 12px; color: var(--text-muted);">Restricted Area Trespass</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-danger);">1 Case</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
+            <div style="font-size: 12px; color: var(--text-muted);">Unregistered Card</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-warning);">1 Case</div>
+          </div>
+          <div style="flex: 1; min-width: 200px; background: var(--bg-subcard); padding: 15px; border-radius: 8px;">
+            <div style="font-size: 12px; color: var(--text-muted);">Expired Card</div>
+            <div style="font-size: 20px; font-weight: 700; color: var(--status-warning);">1 Case</div>
+          </div>
+        </div>
+      </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold border-b border-slate-200">
-                        <tr>
-                            <th class="px-5 py-3">Masa</th>
-                            <th class="px-5 py-3">Tahap</th>
-                            <th class="px-5 py-3">Nama Pelajar</th>
-                            <th class="px-5 py-3">Kelas</th>
-                            <th class="px-5 py-3">Lokasi</th>
-                            <th class="px-5 py-3">Reader ID</th>
-                            <th class="px-5 py-3">Kategori Anomali</th>
-                            <th class="px-5 py-3">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableAnomaly" class="divide-y divide-slate-100">
-                        <!-- Dynamic Rows -->
-                    </tbody>
-                </table>
-            </div>
+      <!-- Grid Grafik / Chart -->
+      <div class="charts-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3>Access Events within the Past 24 hours</h3>
+          </div>
+          <canvas id="accessEventsChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Access Status <span style="font-size: 13px; font-weight: 400; color: var(--text-muted);">(Success vs Denied)</span></h3>
+          </div>
+          <canvas id="accessStatusChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Anomalies based on Location</h3>
+          </div>
+          <canvas id="anomalyLocationChart" height="220"></canvas>
+        </div>
+        <div class="card">
+          <div class="card-header">
+            <h3>Anomalies based on Categories</h3>
+          </div>
+          <canvas id="anomalyCategoryChart" height="220"></canvas>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- TAB 2: ANOMALY MONITORING -->
+    <div id="anomaly-monitoring" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h3>Anomaly Monitoring</h3>
+        </div>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+          The following are the anomalies detected. These anomalies would require further assessment.
+        </p>
+
+        <div class="control-panel">
+          <div class="filter-group">
+            <label for="anomalyFilter">Filter:</label>
+            <select id="anomalyFilter">
+              <option value="all">All Anomalies</option>
+              <option value="high">HIGH</option>
+              <option value="medium">MEDIUM</option>
+              <option value="low">LOW</option>
+            </select>
+          </div>
         </div>
 
-        <!-- PAGE 3: TRANSACTION MONITOR -->
-        <div id="page3" class="tab-content hidden space-y-6">
-            <div class="bg-white p-5 rounded-xl border border-slate-200 shadow-sm flex flex-col md:flex-row justify-between items-center gap-4">
-                <div>
-                    <h2 class="text-lg font-bold text-slate-900">Rekod Transaksi Terperinci</h2>
-                    <p class="text-sm text-slate-500">Log lengkap imbasan Smart ID terbaharu (24 Jam Terkini).</p>
-                </div>
-                <!-- Kotak Carian Live -->
-                <input type="text" id="searchTxn" onkeyup="renderTransactionTable()" placeholder="Cari Pelajar / ID / Lokasi..." class="bg-slate-50 border border-slate-300 text-sm rounded-lg px-4 py-2 w-full md:w-80 focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date and Time</th>
+              <th>Student Name</th>
+              <th>Class</th>
+              <th>Location</th>
+              <th>Anomaly Category</th>
+              <th>Type of Anomaly Detected</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-09-22 22:45:00</td>
+              <td>Puteri Nadhirah binti Rosli</td>
+              <td>Tingkatan 3 Intan</td>
+              <td>Bengkel RBT</td>
+              <td>Ceroboh Kawasan Larangan</td>
+              <td><span class="badge badge-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-21 23:15:10</td>
+              <td>Muhammad Haikal bin Ahmad</td>
+              <td>Tingkatan 5 Mutiara</td>
+              <td>Blok Asrama</td>
+              <td>Akses Malam Dilarang</td>
+              <td><span class="badge badge-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-21 07:10:15</td>
+              <td>Mohd Yusuf bin Abu</td>
+              <td>Tingkatan 2 Delima</td>
+              <td>Pintu Utama</td>
+              <td>Pengguna Kad Berulang (Passback)</td>
+              <td><span class="badge badge-high">HIGH</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-23 10:30:15</td>
+              <td>Muhammad Zikri bin Mansor</td>
+              <td>Tingkatan 1 Nilam</td>
+              <td>Makmal Sains</td>
+              <td>Kad Tamat Tempoh</td>
+              <td><span class="badge badge-medium">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-22 08:15:33</td>
+              <td>Siti Zulaikha binti Abdullah</td>
+              <td>Tingkatan 4 Delima</td>
+              <td>Pusat Sumber</td>
+              <td>Kad Tidak Didaftarkan</td>
+              <td><span class="badge badge-medium">MEDIUM</span></td>
+            </tr>
+            <tr>
+              <td>2026-09-21 15:45:00</td>
+              <td>Puteri Sofea binti Yusof</td>
+              <td>Tingkatan 2 Delima</td>
+              <td>Makmal Komputer</td>
+              <td>Akses Luar Waktu Jadual</td>
+              <td><span class="badge badge-low">LOW</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-            <div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-x-auto">
-                <table class="w-full text-left text-sm text-slate-600">
-                    <thead class="bg-slate-100 text-slate-700 text-xs uppercase font-semibold border-b border-slate-200">
-                        <tr>
-                            <th class="px-5 py-3">Masa</th>
-                            <th class="px-5 py-3">Nama Pelajar</th>
-                            <th class="px-5 py-3">Lokasi / Reader</th>
-                            <th class="px-5 py-3">Status Akses</th>
-                            <th class="px-5 py-3">Catatan Anomali</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableTransactions" class="divide-y divide-slate-100">
-                        <!-- Dynamic Rows -->
-                    </tbody>
-                </table>
-            </div>
+
+    <!-- TAB 3: ACCESS MONITORING -->
+    <div id="access-monitoring" class="tab-content">
+      <div class="card">
+        <div class="card-header">
+          <h3>Access Monitoring</h3>
+        </div>
+        <p style="font-size: 14px; color: var(--text-muted); margin-bottom: 20px;">
+          Detailed Access Record for the past 24 hours
+        </p>
+
+        <div class="control-panel">
+          <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: var(--text-muted);"></i>
+            <input type="text" placeholder="Find Student/ Location/ Reader ID…">
+          </div>
         </div>
 
-    </main>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Date and Time</th>
+              <th>Student Name</th>
+              <th>Location/ Reader ID</th>
+              <th>Access Status</th>
+              <th>Anomaly Category (if any)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>2026-09-23 17:15:00</td>
+              <td>Mohd Firdaus bin Hamid</td>
+              <td>Pintu Utama (RDR-GATE-01)</td>
+              <td><span class="badge badge-success">SUCCESS</span></td>
+              <td>Normal</td>
+            </tr>
+            <tr>
+              <td>2026-09-23 16:40:10</td>
+              <td>Muhammad Haikal bin Ahmad</td>
+              <td>Pintu Utama (RDR-GATE-02)</td>
+              <td><span class="badge badge-success">SUCCESS</span></td>
+              <td>Normal</td>
+            </tr>
+            <tr>
+              <td>2026-09-23 15:30:11</td>
+              <td>Nur Ariana binti Zulkifli</td>
+              <td>Makmal Komputer (RDR-LAB-01)</td>
+              <td><span class="badge badge-success">SUCCESS</span></td>
+              <td>Normal</td>
+            </tr>
+            <tr>
+              <td>2026-09-23 10:30:15</td>
+              <td>Muhammad Zikri bin Mansor</td>
+              <td>Makmal Sains (RDR-SCI-01)</td>
+              <td><span class="badge badge-danger">DENIED</span></td>
+              <td>Kad Tamat Tempoh</td>
+            </tr>
+            <tr>
+              <td>2026-09-23 08:45:20</td>
+              <td>Nur Iman binti Hashim</td>
+              <td>Pusat Sumber (RDR-LIB-01)</td>
+              <td><span class="badge badge-success">SUCCESS</span></td>
+              <td>Normal</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
 
-    <script>
-        const SHEET_ID = '17SoEHBEEsPZn5gi_GzKIKlzeVedyxB65-rKG_-LgSio';
+  </div>
 
-        let rawAnomalyData = [];
-        let rawTransactionData = [];
-        let chartLine, chartLoc, chartCat, chartAcc;
+  <script>
+    // Fungsi Perkalian Tab Dashboard
+    function switchTab(tabId, btn) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+      
+      document.getElementById(tabId).classList.add('active');
+      btn.classList.add('active');
+    }
 
-        function getCsvUrl(sheetName) {
-            return `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}`;
-        }
+    // Konfigurasi Warna Chart.js
+    const primaryTeal = '#009DB8';
+    const primaryAccent = '#008CB4';
+    const statusDanger = '#FD282A';
+    const statusSuccess = '#34C759';
+    const statusWarning = '#FF9500';
 
-        async function fetchSheetData(sheetName) {
-            try {
-                const response = await fetch(getCsvUrl(sheetName));
-                const csvText = await response.text();
-                return new Promise((resolve) => {
-                    Papa.parse(csvText, {
-                        header: true,
-                        skipEmptyLines: true,
-                        complete: (results) => resolve(results.data)
-                    });
-                });
-            } catch (err) {
-                console.error("Error fetching sheet:", sheetName, err);
-                return [];
-            }
-        }
+    // 1. Grafik Access Events
+    new Chart(document.getElementById('accessEventsChart'), {
+      type: 'line',
+      data: {
+        labels: ['06:00', '08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'],
+        datasets: [{
+          label: 'Total Scans',
+          data: [120, 310, 180, 240, 190, 210, 110, 45, 23],
+          borderColor: primaryAccent,
+          backgroundColor: 'rgba(0, 140, 180, 0.12)',
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
 
-        async function loadLiveDashboard() {
-            const [kpiData, hourlyData, locData, catData, accData, anomalyData, dashData] = await Promise.all([
-                fetchSheetData('EXECUTIVE_KPI'),
-                fetchSheetData('HOURLY_24H'),
-                fetchSheetData('LOCATION_24H'),
-                fetchSheetData('CATEGORY_24H'),
-                fetchSheetData('ACCESS_24H'),
-                fetchSheetData('ANOMALY_24H'),
-                fetchSheetData('DASHBOARD_DATA')
-            ]);
+    // 2. Grafik Access Status
+    new Chart(document.getElementById('accessStatusChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['SUCCESS', 'DENIED'],
+        datasets: [{
+          data: [1422, 6],
+          backgroundColor: [statusSuccess, statusDanger]
+        }]
+      },
+      options: { responsive: true }
+    });
 
-            rawAnomalyData = anomalyData;
-            rawTransactionData = dashData;
+    // 3. Grafik Anomalies based on Location
+    new Chart(document.getElementById('anomalyLocationChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Pintu Utama', 'Bengkel RBT', 'Blok Asrama', 'Makmal Sains', 'Pusat Sumber'],
+        datasets: [{
+          label: 'Anomalies',
+          data: [2, 1, 1, 1, 1],
+          backgroundColor: primaryTeal
+        }]
+      },
+      options: { responsive: true, plugins: { legend: { display: false } } }
+    });
 
-            // 1. Update KPI Cards
-            if (kpiData.length > 0) {
-                const kpi = kpiData[0];
-                document.getElementById('kpiTransaksi').innerText = kpi['Total Transaksi'] || '0';
-                document.getElementById('kpiPelajar').innerText = kpi['Pelajar Unik'] || '0';
-                document.getElementById('kpiAnomali').innerText = kpi['Anomali'] || '0';
-                document.getElementById('kpiRate').innerText = kpi['Anomaly Rate'] || '0%';
-                document.getElementById('sevHigh').innerText = kpi['High'] || '0';
-                document.getElementById('sevMedium').innerText = kpi['Medium'] || '0';
-                document.getElementById('sevLow').innerText = kpi['Low'] || '0';
-            }
-
-            // 2. Line Chart: Aktiviti 24 Jam
-            const hourlyLabels = hourlyData.map(d => d['Label Jam'] || d['Jam']);
-            const hourlyValues = hourlyData.map(d => parseInt(d['Jumlah Transaksi'] || 0));
-            
-            if (chartLine) chartLine.destroy();
-            chartLine = new Chart(document.getElementById('scanActivityChart'), {
-                type: 'line',
-                data: {
-                    labels: hourlyLabels,
-                    datasets: [{
-                        label: 'Jumlah Imbasan',
-                        data: hourlyValues,
-                        borderColor: '#2563EB',
-                        backgroundColor: 'rgba(37, 99, 235, 0.08)',
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-            });
-
-            // 3. Bar Chart: Lokasi
-            const locLabels = locData.map(d => d['Nama Lokasi']);
-            const locValues = locData.map(d => parseInt(d['Jumlah Anomali'] || 0));
-
-            if (chartLoc) chartLoc.destroy();
-            chartLoc = new Chart(document.getElementById('locationChart'), {
-                type: 'bar',
-                data: {
-                    labels: locLabels,
-                    datasets: [{ data: locValues, backgroundColor: '#1E293B', borderRadius: 5 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } } }
-            });
-
-            // 4. Bar Chart: Kategori
-            const catLabels = catData.map(d => d['Kategori Anomali']);
-            const catValues = catData.map(d => parseInt(d['Jumlah'] || 0));
-
-            if (chartCat) chartCat.destroy();
-            chartCat = new Chart(document.getElementById('categoryChart'), {
-                type: 'bar',
-                data: {
-                    labels: catLabels,
-                    datasets: [{ data: catValues, backgroundColor: '#2563EB', borderRadius: 5 }]
-                },
-                options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: { display: false } } }
-            });
-
-            // 5. Donut Chart: Status Akses
-            const accLabels = accData.map(d => d['Status Akses']);
-            const accValues = accData.map(d => parseInt(d['Jumlah'] || 0));
-
-            if (chartAcc) chartAcc.destroy();
-            chartAcc = new Chart(document.getElementById('accessStatusChart'), {
-                type: 'doughnut',
-                data: {
-                    labels: accLabels,
-                    datasets: [{ data: accValues, backgroundColor: ['#10B981', '#DC2626'] }]
-                },
-                options: { responsive: true, maintainAspectRatio: false }
-            });
-
-            renderAnomalyTable();
-            renderTransactionTable();
-
-            const now = new Date();
-            document.getElementById('lastSync').innerText = now.toLocaleTimeString();
-        }
-
-        // Render Page 2 Table (With Severity Dropdown Filter)
-        function renderAnomalyTable() {
-            const selectedSev = document.getElementById('filterSeverity').value;
-            const tbodyAnom = document.getElementById('tableAnomaly');
-            tbodyAnom.innerHTML = '';
-
-            const filteredData = rawAnomalyData.filter(row => {
-                if (selectedSev === 'ALL') return true;
-                return (row['Tahap Anomali'] || '').toUpperCase() === selectedSev;
-            });
-
-            if (filteredData.length === 0) {
-                tbodyAnom.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400 font-medium">Tiada rekod anomali ditemui untuk tahap "${selectedSev}".</td></tr>`;
-                return;
-            }
-
-            filteredData.forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50';
-                
-                let sevColor = 'bg-slate-100 text-slate-700';
-                if (row['Tahap Anomali'] === 'HIGH') sevColor = 'bg-red-100 text-red-700';
-                else if (row['Tahap Anomali'] === 'MEDIUM') sevColor = 'bg-amber-100 text-amber-700';
-                else if (row['Tahap Anomali'] === 'LOW') sevColor = 'bg-emerald-100 text-emerald-700';
-                
-                tr.innerHTML = `
-                    <td class="px-5 py-3 font-mono text-xs">${row['Timestamp'] || '-'}</td>
-                    <td class="px-5 py-3"><span class="px-2.5 py-0.5 text-xs font-bold rounded-full ${sevColor}">${row['Tahap Anomali'] || 'NORMAL'}</span></td>
-                    <td class="px-5 py-3 font-semibold text-slate-900">${row['Nama Pelajar'] || '-'}</td>
-                    <td class="px-5 py-3">${row['Kelas Penuh'] || '-'}</td>
-                    <td class="px-5 py-3">${row['Nama Lokasi'] || '-'}</td>
-                    <td class="px-5 py-3 font-mono text-xs">${row['ID Peranti (Reader)'] || '-'}</td>
-                    <td class="px-5 py-3 text-red-600 font-medium">${row['Kategori Anomali'] || '-'}</td>
-                    <td class="px-5 py-3 font-semibold">${row['Status Akses'] || '-'}</td>
-                `;
-                tbodyAnom.appendChild(tr);
-            });
-        }
-
-        // Render Page 3 Table (With Combined Columns & Live Search)
-        function renderTransactionTable() {
-            const query = (document.getElementById('searchTxn').value || '').toLowerCase();
-            const tbodyTxn = document.getElementById('tableTransactions');
-            tbodyTxn.innerHTML = '';
-
-            const filteredTxn = rawTransactionData.filter(row => {
-                if (!query) return true;
-                const searchStr = `${row['Nama Pelajar']} ${row['ID Pelajar']} ${row['Nama Lokasi']} ${row['ID Peranti (Reader)']}`.toLowerCase();
-                return searchStr.includes(query);
-            });
-
-            if (filteredTxn.length === 0) {
-                tbodyTxn.innerHTML = `<tr><td colspan="5" class="text-center py-6 text-slate-400 font-medium">Tiada rekod transaksi dijumpai untuk "${query}".</td></tr>`;
-                return;
-            }
-
-            filteredTxn.slice(0, 30).forEach(row => {
-                const tr = document.createElement('tr');
-                tr.className = 'hover:bg-slate-50';
-                
-                const statusBadge = row['Status Akses'] === 'SUCCESS' 
-                    ? 'bg-emerald-100 text-emerald-700 font-bold' 
-                    : 'bg-red-100 text-red-700 font-bold';
-
-                let anomalyText = row['Kategori Anomali'] || 'Normal';
-                let anomalyColor = 'text-slate-400';
-                
-                if (row['Tahap Anomali'] === 'HIGH') {
-                    anomalyColor = 'text-red-600 font-bold';
-                    anomalyText = `HIGH — ${row['Kategori Anomali']}`;
-                } else if (row['Tahap Anomali'] === 'MEDIUM') {
-                    anomalyColor = 'text-amber-600 font-bold';
-                    anomalyText = `MEDIUM — ${row['Kategori Anomali']}`;
-                } else if (row['Tahap Anomali'] === 'LOW') {
-                    anomalyColor = 'text-emerald-600 font-bold';
-                    anomalyText = `LOW — ${row['Kategori Anomali']}`;
-                }
-
-                const readerId = row['ID Peranti (Reader)'] ? `(${row['ID Peranti (Reader)']})` : '';
-
-                tr.innerHTML = `
-                    <td class="px-5 py-3 font-mono text-xs">${row['Timestamp'] || '-'}</td>
-                    <td class="px-5 py-3 font-semibold text-slate-900">${row['Nama Pelajar'] || '-'}</td>
-                    <td class="px-5 py-3">${row['Nama Lokasi'] || '-'} <span class="text-xs text-slate-400 font-mono">${readerId}</span></td>
-                    <td class="px-5 py-3"><span class="px-2.5 py-1 text-xs rounded-md ${statusBadge}">${row['Status Akses']}</span></td>
-                    <td class="px-5 py-3 ${anomalyColor}">${anomalyText}</td>
-                `;
-                tbodyTxn.appendChild(tr);
-            });
-        }
-
-        function switchTab(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.remove('hidden');
-            document.getElementById('tab-' + tabId).classList.add('active');
-        }
-
-        loadLiveDashboard();
-        setInterval(loadLiveDashboard, 15000);
-    </script>
+    // 4. Grafik Anomalies based on Categories
+    new Chart(document.getElementById('anomalyCategoryChart'), {
+      type: 'pie',
+      data: {
+        labels: ['Passback Abuse', 'Restricted Area', 'Night Access', 'Expired Card', 'Unregistered'],
+        datasets: [{
+          data: [2, 1, 1, 1, 1],
+          backgroundColor: [statusDanger, '#E63946', '#F4A261', statusWarning, primaryAccent]
+        }]
+      },
+      options: { responsive: true }
+    });
+  </script>
 </body>
 </html>
